@@ -14,6 +14,9 @@ Rectangle {
   signal clicked()
 
   readonly property bool decided: tie !== null && tie.winnerId !== ""
+  // A tie settled on penalties shows the shootout next to the score (the final
+  // shows it under the card instead).
+  readonly property bool shootout: tie !== null && tie.slug !== "final" && tie.a.pens !== ""
   readonly property color dim: Qt.darker(foreground, 1.7)
 
   radius: Math.min(6, Style.cornerRadius)
@@ -71,8 +74,9 @@ Rectangle {
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: Style.space(5)
-    textFormat: Text.PlainText
-    text: !card.tie ? "" : card.tie.state === "pre" ? "vs" : card.tie.a.score + " - " + card.tie.b.score
+    textFormat: Text.StyledText
+    text: !card.tie ? "" : card.tie.state === "pre" ? "vs"
+      : card.tie.a.score + " - " + card.tie.b.score + (card.shootout ? " <small>(" + card.tie.a.pens + "-" + card.tie.b.pens + ")</small>" : "")
     color: card.tie && card.tie.state === "pre" ? card.dim : card.foreground
     font.family: card.fontFamily
     font.pixelSize: Style.font.bodySmall

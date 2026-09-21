@@ -93,11 +93,14 @@ Panel {
     return Model.liveCount(root.games)
   }
 
+  // The competition is part of the label, so it can never be mistaken for the
+  // Europa League widget: "⚽ UCL MD2".
+  readonly property string competition: "UCL"
   readonly property string barIcon: "⚽"
   readonly property string barText: {
     var r = root.currentRound
-    if (!r) return "⚽ UCL"
-    var t = "⚽ " + r.abbr
+    if (!r) return root.barIcon + " " + root.competition
+    var t = root.barIcon + " " + root.competition + " " + r.abbr
     if (root.liveGames > 0) t += " ● " + root.liveGames
     return t
   }

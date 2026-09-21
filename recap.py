@@ -55,6 +55,9 @@ EXONYMS = {
     "cologne": {"koln"}, "koln": {"cologne"}, "lisbon": {"lisboa"},
 }
 TRANSLIT = str.maketrans({"ø": "o", "æ": "ae", "œ": "oe", "ł": "l", "đ": "d", "ð": "d", "ß": "ss", "ı": "i", "þ": "th"})
+# A club's own video without "highlights" in the title must at least say how the
+# game went, which keeps out the behind-the-scenes and the interview videos.
+RESULT = re.compile(r"\b(win|wins|won|victory|defeat|draw|beat|beats|goal|goals|brace|comeback)\b")
 HIGHLIGHT = ("highlight", "recap", "resumen", "resume", "resumo", "zusammenfassung", "sintesi", "samenvatting")
 REJECT = re.compile(
     r"\b(simulation|prediction|pes|efootball|fifa|fc ?2\d|preview|reaction|press conference|training|"
@@ -150,17 +153,20 @@ class Team:
         return any(" %s " % a in padded for a in self.aliases)
 
     def owns_channel(self, channel):
-        toks = words(channel)
+        # "Bayer 04 Leverkusen", "TSG 1899 Hoffenheim": numbers do not count.
+        toks = [w for w in words(channel) if not w.isdigit()]
         return bool(toks) and all(w in self.tokens for w in toks) and any(len(w) >= 3 for w in toks)
 
 
-def score_ok(title, hs, aw):
+def score_state(title, hs, aw):
+    """True: the title has the score of the game. False: it has another score.
+    None: it has no score, or the score of the game is unknown."""
     if hs < 0 or aw < 0:
-        return True
+        return None
     pairs = re.findall(r"(?<![\d/])(\d{1,2})\s*(?:-|–|:|vs\.?|v)\s*(\d{1,2})(?![\d/])", title.lower())
     pairs = [(int(a), int(b)) for a, b in pairs if int(a) <= 15 and int(b) <= 15]
     if not pairs:
-        return True
+        return None
     return any(p in ((hs, aw), (aw, hs)) for p in pairs)
 
 
@@ -168,13 +174,20 @@ def rank(row, g, teams):
     """0 = a club's own channel, 1 = trusted broadcaster, None = reject."""
     t = row["title"]
     tl = t.lower()
-    if not any(k in tl for k in HIGHLIGHT) or REJECT.search(tl):
+    if REJECT.search(tl):
         return None
     if not all(team.in_title(t) for team in teams):
         return None
-    if not score_ok(t, g["homeScore"], g["awayScore"]):
+    score = score_state(t, g["homeScore"], g["awayScore"])
+    if score is False:
         return None
-    if any(team.owns_channel(row["channel"]) for team in teams):
+    club = any(team.owns_channel(row["channel"]) for team in teams)
+    if not any(k in tl for k in HIGHLIGHT):
+        # A club does not always say "highlights" ("Bayer 04 kick off Europa
+        # League campaign with 2-0 win"): its own channel is enough, when the
+        # title also carries the score of this game and says how it went.
+        return 0 if club and score is True and RESULT.search(tl) else None
+    if club:
         return 0
     if norm(row["channel"]) in TRUSTED:
         return 1
@@ -192,9 +205,13 @@ def resolve(g):
     home, away = g["home"], g["away"]
     teams = [Team(home, away), Team(away, home)]
     kickoff_days = g["date"] / 1000 / 86400
+    # The general searches are full of re-uploads, so the clubs' own channels are
+    # asked for by name as well.
     queries = [
         "%s vs %s highlights UEFA Champions League %s" % (home["name"], away["name"], g["season"]),
         "%s %s Champions League highlights" % (teams[0].name, teams[1].name),
+        "%s official highlights %s" % (home["name"], away["name"]),
+        "%s official highlights %s" % (away["name"], home["name"]),
     ]
     tried = set()
     for q in queries:

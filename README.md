@@ -29,7 +29,7 @@ Champions League is a bar widget for the [Omarchy](https://omarchy.org) shell. T
 
 ## Features
 
-- The bar shows `⚽ MD2`, plus `● 3` in the active color while three games are live
+- The bar shows `⚽ UCL MD2`, plus `● 3` in the active color while three games are live. The competition is part of the label, so it cannot be mistaken for its sibling [Europa League widget](https://github.com/Onra/omarchy-uel-scores) (`⚽ UEL MD2`), and the two sit side by side in the same bar
 - A panel with every game of the round: kickoff time in your timezone, the city, the score with the live minute or `FT`/`AET`, and the penalty shootout score
 - Second legs show the aggregate score of the tie
 - Live games refresh every 30 seconds, and everything else every 5 minutes
@@ -97,7 +97,7 @@ The current round is the one that is being played. Once a round is over its resu
 
 ## Bracket
 
-The bracket has the same shape as the one that UEFA publishes: the eight knockout playoff ties on the outside, then the round of 16, the quarter-finals and the semi-finals, and the final and the trophy in the middle. A tie is shown as it is decided: the first leg alone shows a partial aggregate, a tie that is being played has a colored border, and a finished tie strikes through the team that went out. A place that ESPN has not filled yet is an empty box, so this season's bracket starts empty and fills in from the draw of the knockout playoffs to the final.
+The bracket has the same shape as the one that UEFA publishes: the eight knockout playoff ties on the outside, then the round of 16, the quarter-finals and the semi-finals, and the final and the trophy in the middle. A tie is shown as it is decided: the first leg alone shows a partial aggregate, a tie that was settled on penalties shows the shootout next to the score, a tie that is being played has a colored border, and a finished tie strikes through the team that went out. A place that ESPN has not filled yet is an empty box, so this season's bracket starts empty and fills in from the draw of the knockout playoffs to the final.
 
 The bracket of a past season is fetched once, when you step back to it with `←`. The first season with this format is 2024-25. The codes on the cards are the UEFA-style codes (`FCB`, `MCI`, `BVB`) and not the ones that ESPN uses for some clubs.
 
@@ -115,7 +115,7 @@ Unlike a league with one broadcaster, the Champions League has no YouTube channe
 - a score in the title is the score of the game
 - it was uploaded within two months after the game
 
-In practice most games have a video, and the clubs that do not upload highlights (or that name their videos in an unexpected way) get the **Search** button. The answers are kept in `~/.cache/onra-ucl-scores/recaps.json`. A video that is found stays in the cache. A game with no video is searched again after 30 minutes on the days after the game, because clubs post the highlights some hours later, and after 12 hours for older games.
+In practice most games have a video, and the clubs that do not upload highlights (or that name their videos in an unexpected way) get the **Search** button. A club's own video is also accepted when its title does not say "highlights", as long as it names both teams, has the score of the game, and says how it went ("win", "goals", …). The answers are kept in `~/.cache/onra-ucl-scores/recaps.json`. A video that is found stays in the cache. A game with no video is searched again after 30 minutes on the days after the game, because clubs post the highlights some hours later, and after 12 hours for older games.
 
 ## IPC
 
