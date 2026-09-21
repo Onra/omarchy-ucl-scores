@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "onra.ucl-scores",
+  "name": "Champions League",
+  "version": "0.1.0",
+  "author": "onra",
+  "license": "MIT",
+  "description": "UEFA Champions League scores and fixtures in the Omarchy bar: current matchday and live game count, with a panel to step through every round, a league phase table, and links to YouTube highlights.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Champions League",
+    "description": "Click: scores and fixtures. Middle click: refresh.",
+    "category": "Info",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}
